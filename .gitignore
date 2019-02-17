@@ -1,3 +1,9 @@
+tmp/
+.vscode/
+*.png
+2vb1/
+5oer/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
