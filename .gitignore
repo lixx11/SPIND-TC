@@ -3,6 +3,8 @@ tmp/
 *.png
 2vb1/
 5oer/
+data/
+*.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

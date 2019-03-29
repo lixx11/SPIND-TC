@@ -256,7 +256,6 @@ if __name__ == '__main__':
     q_lengths = norm(q_vectors, axis=1)
 
     if rank == 0:
-        print('Master!')
         print('hkl orders: %d' % hkl_array.shape[0])
         # group jobs
         raw_jobs = np.arange(hkl_array.shape[0])  # raw jobs
@@ -277,5 +276,4 @@ if __name__ == '__main__':
                 job_batches.append(job_batch)
         master_run(job_batches, output=table_file)
     else:
-        print('Worker!')
         worker_run()
