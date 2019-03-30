@@ -24,7 +24,6 @@ except:
 
 from mpi4py import MPI
 import numpy as np
-import pickle
 
 from docopt import docopt
 import sys
@@ -79,8 +78,6 @@ def write_to_csv(res, fout):
             A[0, 2], A[1, 2], A[2, 2],  # c*
         )
     )
-    with open('res-%d.pkl' % res['id'], 'wb') as f:
-        pickle.dump(res, f)
 
 
 def master_run(args):
