@@ -37,7 +37,7 @@ from index import index
 
 def build_index_jobs(peak_data, detector, pixel_size, pre_solution_path=None):
     index_job = []
-    for i in range(len(peak_data[:10])):
+    for i in range(len(peak_data)):
         image_file = peak_data[i]['image_file']
         peaks = peak_data[i]['peaks']
         pre_solution = peak_data[i][pre_solution_path] if pre_solution_path is not None else None
@@ -61,6 +61,8 @@ def build_index_jobs(peak_data, detector, pixel_size, pre_solution_path=None):
 
 
 def write_to_csv(res, fout):
+    if res is None:
+        return
     solution = res['best_solution']
     A = solution.A_refined
     fout.write(
@@ -114,7 +116,7 @@ def master_run(args):
         if job_id < job_num:
             job = jobs[job_id]
         else:
-            job = []  # dummy job
+            job = None  # dummy job
         comm.isend(job, dest=worker)
         print('%d/%d  --> %d' % (job_id, job_num, worker), flush=True)
         reqs[worker] = comm.irecv(source=worker)
@@ -182,6 +184,9 @@ def worker_run(args):
     stop = False
     while not stop:
         job = comm.recv(source=0)
+        if job is None:
+            comm.send(None, dest=0)  # send dummy response for dummy job
+            break
         t0 = time.time()
         res = index(
             table, job['coords'], photon_energy_list, det_dist,
