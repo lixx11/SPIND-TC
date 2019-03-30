@@ -7,6 +7,7 @@ Usage:
 Options:
     -h --help                   Show this screen.
     --output=<file>             Specify output file [default: spind.csv].
+    --max-index=<num>          Max number of patterns to index [default: -1].
     --sort-by=<method>          Sort peaks by intensity, snr or resolution [default: none].
     --presolution=<solution>    Use presolution in peak file [default: none].
     --seed-len-tol=<num>        Specify seed length tolerance in per angstrom[default: 0.001].
@@ -87,10 +88,13 @@ def master_run(args):
     peak_file = args['<PEAK-FILE>']
     geom_file = args['<GEOM-FILE>']
     pixel_size = float(args['<PIXEL-SIZE>'])
+    max_index = int(args['--max-index'])
     pre_solution_path = args['--presolution']
     pre_solution_path = None if pre_solution_path == 'none' else pre_solution_path
 
     peak_data = np.load(peak_file)
+    if max_index != -1:
+        peak_data = peak_data[:max_index]
     detector = Detector(geom_file, ['q%d' % i for i in range(1, 9)])
 
     fout = open(args['--output'], 'w')

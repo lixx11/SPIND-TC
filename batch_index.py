@@ -7,6 +7,7 @@ Usage:
 Options:
     -h --help                   Show this screen.
     --output=<file>             Specify output file [default: spind.csv].
+    --max-index=<num>          Max number of patterns to index [default: -1].
     --sort-by=<method>          Sort peaks by intensity, snr or resolution [default: none].
     --presolution=<solution>    Use presolution in peak file [default: none].
     --seed-len-tol=<num>        Specify seed length tolerance in per angstrom[default: 0.001].
@@ -41,6 +42,7 @@ if __name__ == "__main__":
     photon_energy_list = list(map(float, args['<PHOTON-ENERGY-LIST>'].split(',')))
     det_dist = float(args['<DET-DIST>'])
     pixel_size = float(args['<PIXEL-SIZE>'])
+    max_index = int(args['--max-index'])
     sort_by = args['--sort-by']
     pre_solution_path = args['--presolution']
     refine = args['--refine']
@@ -54,6 +56,8 @@ if __name__ == "__main__":
     show_progress = True if show_progress == 'true' else False
 
     peak_data = np.load(peak_file)
+    if max_index != -1:
+        peak_data = peak_data[:max_index]
     table = load_table(table_file)
     table['A0'] = calc_transform_matrix(table['lattice_constants'])
     detector = Detector(geom_file, ['q%d' % i for i in range(1, 9)])
@@ -64,7 +68,7 @@ if __name__ == "__main__":
         'ax,ay,az,bx,by,bz,cx,cy,cz\n'
     )
 
-    for i in range(len(peak_data[:10])):
+    for i in range(len(peak_data)):
         t0 = time.time()
         image_file = peak_data[i]['image_file']
         peaks = peak_data[i]['peaks']
