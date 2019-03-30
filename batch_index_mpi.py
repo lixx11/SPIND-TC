@@ -78,6 +78,7 @@ def write_to_csv(res, fout):
             A[0, 2], A[1, 2], A[2, 2],  # c*
         )
     )
+    fout.flush()
 
 
 def master_run(args):
