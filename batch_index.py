@@ -73,14 +73,14 @@ if __name__ == "__main__":
         coords_x, coords_y = detector.map2xy(peaks[:, 0], peaks[:, 1])
         coords = np.vstack([coords_x, coords_y]).T
         coords *= pixel_size
-        intensities = peaks[:, 2]
+        intensity = peaks[:, 2]
 
         res = index(
             table, coords, photon_energy_list, det_dist, 
             seed_len_tol=seed_len_tol,
             seed_angle_tol=seed_angle_tol,
             seed_pair_num=seed_pair_num,
-            intensities=intensities,
+            intensity=intensity,
             pre_solution=pre_solution,
             sort=sort_by,
             refine=refine,
