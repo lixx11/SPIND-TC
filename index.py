@@ -109,11 +109,6 @@ def eval_solution(solution, qs_c1, qs_c2, calc_pair_dist=False):
         eXYZs_c2 = solution.A.dot(rhkls_c2.T).T - qs_c2
         pair_dist = (np.sum(norm(eXYZs_c1, axis=1)[pair_ids_c1]) + np.sum(norm(eXYZs_c2, axis=1)[pair_ids_c2])) \
             / (len(pair_ids_c1) + len(pair_ids_c2))
-        match_rate_bin = np.mean(
-            (np.max(ehkls_c1, axis=1) < 0.25).astype(int) * (probs_c1 > 0.5).astype(int)
-            + (np.max(ehkls_c2, axis=1) < 0.25).astype(int) * (probs_c2 > 0.5).astype(int)
-        )
-        solution.match_rate_bin = match_rate_bin
         solution.pair_dist = pair_dist
         solution.hkls_c1 = hkls_c1
         solution.rhkls_c1 = rhkls_c1
@@ -226,7 +221,7 @@ def index(
     refine=True,
     show_progress=True,
     sort=None,
-    intensities=None,
+    intensity=None,
     snrs=None,
     pre_solution=None,
 ):
@@ -261,9 +256,9 @@ def index(
         seed_pool = np.where(peak_res[i] > high_res)[0]
         seed_pairs = list(combinations(seed_pool, 2))
         # sort peak pairs
-        if sort == 'intensity' and intensities is not None:
+        if sort == 'intensity' and intensity is not None:
             seed_pairs.sort(
-                key=lambda p: intensities[p[0]] + intensities[p[1]], reverse=True
+                key=lambda p: intensity[p[0]] + intensity[p[1]], reverse=True
             )
         elif sort == 'resolution':
             seed_pairs.sort(
@@ -315,6 +310,13 @@ def index(
     if refine:
         refine_solution(
             best_solution, peak_rvec[0], peak_rvec[1], probs_c1, probs_c2, min_prob=0.5)
+    
+    del best_solution.hkls_c1
+    del best_solution.rhkls_c1
+    del best_solution.ehkls_c1
+    del best_solution.hkls_c2
+    del best_solution.rhkls_c2
+    del best_solution.ehkls_c2
     
     res_dict = {
         'best_solution': best_solution,
