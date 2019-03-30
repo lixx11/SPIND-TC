@@ -5,6 +5,7 @@ tmp/
 5oer/
 data/
 *.txt
+*.csv
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
