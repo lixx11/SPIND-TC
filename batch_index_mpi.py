@@ -121,7 +121,7 @@ def master_run(args):
         print('%d/%d  --> %d' % (job_id, job_num, worker), flush=True)
         reqs[worker] = comm.irecv(source=worker)
         job_id += 1
-    
+
     finished_workers = set()
     while job_id < job_num:
         stop = False
@@ -142,7 +142,7 @@ def master_run(args):
                     stop = True
                     comm.isend(stop, dest=worker)
                     finished_workers.add(worker)
-    
+
     all_processed = False
     while not all_processed:
         time.sleep(0.001)
@@ -157,7 +157,7 @@ def master_run(args):
                 finished_workers.add(worker)
             else:
                 all_processed = False
-    
+
     fout.close()
     print('Done!')
 
@@ -177,13 +177,18 @@ def worker_run(args):
     table_file = args['<TABLE-FILE>']
     photon_energy_list = list(
         map(float, args['<PHOTON-ENERGY-LIST>'].split(',')))
-    
+
     table = load_table(table_file)
     table['A0'] = calc_transform_matrix(table['lattice_constants'])
 
     stop = False
     while not stop:
-        job = comm.recv(source=0)
+        try:
+            job = comm.recv(source=0)
+        except:
+            comm.send(None, dest=0)
+            stop = comm.recv(source=0)
+            continue
         if job is None:
             comm.send(None, dest=0)  # send dummy response for dummy job
             break
@@ -205,7 +210,9 @@ def worker_run(args):
         res['nb_peak'] = job['coords'].shape[0]
         comm.send(res, dest=0)
         stop = comm.recv(source=0)
-    
+
+    print('worker(%d) finished' % rank)
+
 
 if __name__ == "__main__":
     # mpi setup
@@ -223,7 +230,7 @@ if __name__ == "__main__":
         master_run(args)
     else:
         worker_run(args)
-    
+
     sys.exit()
 
         # solution = res['best_solution']
@@ -231,7 +238,7 @@ if __name__ == "__main__":
         # print('=' * 100)
         # print('time elapsed %.2f sec' % (t1 - t0))
         # print('searched seed pairs: %d' % res['seed_pair_count'])
-        # print('searched solution candidates: %d' % res['solution_count'])   
+        # print('searched solution candidates: %d' % res['solution_count'])
         # print('match rate(refine refine): %.3f' % solution.match_rate)
         # print('match rate(after refine): %.3f' % solution.match_rate_refined)
         # print('pair_dist(before refine): %.3e' % solution.pair_dist)
@@ -239,4 +246,4 @@ if __name__ == "__main__":
         # print('best solution: ', solution.A)
         # print('=' * 100)
 
-        
+
