@@ -77,7 +77,8 @@ if __name__ == "__main__":
         coords_x, coords_y = detector.map2xy(peaks[:, 0], peaks[:, 1])
         coords = np.vstack([coords_x, coords_y]).T
         coords *= pixel_size
-        intensity = peaks[:, 2]
+        intensity = peaks[:, 2] if peaks.shape[1] >= 3 else None
+        snr = peaks[:, 3] if peaks.shape[1] >= 4 else None
 
         res = index(
             table, coords, photon_energy_list, det_dist, 
@@ -85,6 +86,7 @@ if __name__ == "__main__":
             seed_angle_tol=seed_angle_tol,
             seed_pair_num=seed_pair_num,
             intensity=intensity,
+            snr=snr,
             pre_solution=pre_solution,
             sort=sort_by,
             refine=refine,
