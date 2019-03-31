@@ -199,6 +199,7 @@ def worker_run(args):
             seed_angle_tol=seed_angle_tol,
             seed_pair_num=seed_pair_num,
             intensity=job['intensity'],
+            snr=job['snr'],
             pre_solution=job['pre_solution'],
             sort=sort_by,
             refine=refine,

@@ -222,7 +222,7 @@ def index(
     show_progress=True,
     sort=None,
     intensity=None,
-    snrs=None,
+    snr=None,
     pre_solution=None,
 ):
     if show_progress:
@@ -264,9 +264,9 @@ def index(
             seed_pairs.sort(
                 key=lambda p: peak_res[i][p[0]] + peak_res[i][p[1]], reverse=False
             )
-        elif sort == 'snr' and snrs is not None:
+        elif sort == 'snr' and snr is not None:
             seed_pairs.sort(
-                key=lambda p: snrs[p[0]] + snrs[p[1]], reverse=True
+                key=lambda p: snr[p[0]] + snr[p[1]], reverse=True
             )
         # do heavy searching
         for seed_pair in tqdm_(seed_pairs[:seed_pair_num]):
