@@ -99,7 +99,7 @@ if __name__ == "__main__":
         print('=' * 100)
         print('time elapsed %.2f sec' % (t1 - t0))
         print('searched seed pairs: %d' % res['seed_pair_count'])
-        print('searched solution candidates: %d' % res['solution_count'])   
+        print('searched solution candidates: %d' % res['solution_count'])
         print('match rate(refine refine): %.3f' % solution.match_rate)
         print('match rate(after refine): %.3f' % solution.match_rate_refined)
         print('pair_dist(before refine): %.3e' % solution.pair_dist)

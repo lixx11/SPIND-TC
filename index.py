@@ -79,7 +79,7 @@ def build_solution(A0, q1, q2, hkl1, hkl2):
     return solution
 
 
-def eval_solution(solution, qs_c1, qs_c2, calc_pair_dist=False):
+def eval_solution(solution, qs_c1, qs_c2, calc_pair_dist=False, eval_tol=0.25):
     """
     Evaluate solution.
     
@@ -94,16 +94,16 @@ def eval_solution(solution, qs_c1, qs_c2, calc_pair_dist=False):
     rhkls_c2 = np.round(hkls_c2)
     ehkls_c2 = np.abs(hkls_c2 - rhkls_c2)
 
-    match_rate = np.mean((np.max(ehkls_c1, axis=1) <= 0.25) | (np.max(ehkls_c2, axis=1) <= 0.25))
+    match_rate = np.mean((np.max(ehkls_c1, axis=1) <= eval_tol) | (np.max(ehkls_c2, axis=1) <= eval_tol))
     solution.match_rate = match_rate
 
     if calc_pair_dist:
         probs_c1, probs_c2 = calc_prob(solution, qs_c1, qs_c2)
         pair_ids_c1 = np.where(
-            (np.max(ehkls_c1, axis=1) < 0.25) * (probs_c1 > 0.5)
+            (np.max(ehkls_c1, axis=1) < eval_tol) * (probs_c1 > 0.5)
         )[0]
         pair_ids_c2 = np.where(
-            (np.max(ehkls_c2, axis=1) < 0.25) * (probs_c2 > 0.5)
+            (np.max(ehkls_c2, axis=1) < eval_tol) * (probs_c2 > 0.5)
         )[0]
         eXYZs_c1 = solution.A.dot(rhkls_c1.T).T - qs_c1
         eXYZs_c2 = solution.A.dot(rhkls_c2.T).T - qs_c2
@@ -218,6 +218,8 @@ def index(
     seed_len_tol=0.001,
     seed_angle_tol=1.,
     seed_pair_num=100,
+    eval_tol=0.25,
+    match_rate_thres=0.7,
     refine=True,
     show_progress=True,
     sort=None,
@@ -281,14 +283,14 @@ def index(
                 )
                 if pre_solution is not None:
                     solution.A = pre_solution
-                eval_solution(solution, peak_rvec[0], peak_rvec[1])
+                eval_solution(solution, peak_rvec[0], peak_rvec[1], eval_tol=eval_tol)
                 solutions.append(solution)
                 best_match_rate = max(best_match_rate, solution.match_rate)
                 solution_count += 1
             seed_pair_count += 1
-            if best_match_rate > 0.7:
+            if best_match_rate > match_rate_thres:
                 break
-        if best_match_rate > 0.7:
+        if best_match_rate > match_rate_thres:
             break
 
     solutions.sort(key=lambda s: s.match_rate, reverse=True)
@@ -301,7 +303,7 @@ def index(
                      for cluster in clusters if cluster['best_el'].match_rate == best_match_rate]
 
     for solution in top_solutions:
-        eval_solution(solution, peak_rvec[0], peak_rvec[1], calc_pair_dist=True)
+        eval_solution(solution, peak_rvec[0], peak_rvec[1], calc_pair_dist=True, eval_tol=eval_tol)
     top_solutions.sort(key=lambda s: s.pair_dist, reverse=True)
     best_solution = top_solutions[0]
 

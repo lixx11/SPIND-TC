@@ -1,4 +1,5 @@
 import math
+from math import cos, sin
 import numpy as np
 from numpy.linalg import norm
 import h5py
@@ -164,15 +165,38 @@ def calc_rotation_matrix(mob_v1, mob_v2, ref_v1, ref_v2):
     return R
 
 
-def rotation_matrix_to_euler_angles(R):
-    sy = math.sqrt(R[0, 0] * R[0, 0] + R[1, 0] * R[1, 0])
-    singular = sy < 1e-6
-    if not singular:
-        x = rad2deg(math.atan2(R[2, 1], R[2, 2]))
-        y = rad2deg(math.atan2(-R[2, 0], sy))
-        z = rad2deg(math.atan2(R[1, 0], R[0, 0]))
-    else:
-        x = rad2deg(math.atan2(-R[1, 2], R[1, 1]))
-        y = rad2deg(math.atan2(-R[2, 0], sy))
-        z = 0
-    return np.array([x, y, z])
+# def rotation_matrix_to_euler_angles(R):
+#     sy = math.sqrt(R[0, 0] * R[0, 0] + R[1, 0] * R[1, 0])
+#     singular = sy < 1e-6
+#     if not singular:
+#         x = rad2deg(math.atan2(R[2, 1], R[2, 2]))
+#         y = rad2deg(math.atan2(-R[2, 0], sy))
+#         z = rad2deg(math.atan2(R[1, 0], R[0, 0]))
+#     else:
+#         x = rad2deg(math.atan2(-R[1, 2], R[1, 1]))
+#         y = rad2deg(math.atan2(-R[2, 0], sy))
+#         z = 0
+#     return np.array([x, y, z])
+
+
+def euler_angles_to_rotation_matrix(euler_angles):
+    """Convert XYZ Euler angles to rotation matrix
+    """
+    t1, t2, t3 = np.deg2rad(euler_angles)
+    rm = np.array([
+        [cos(t2)*cos(t3), cos(t2)*sin(t3), -sin(t2)],
+        [sin(t1)*sin(t2)*cos(t3) - cos(t1)*sin(t3), sin(t1) *
+         sin(t2)*sin(t3)+cos(t1)*cos(t3), sin(t1)*cos(t2)],
+        [cos(t1)*sin(t2)*cos(t3)+sin(t1)*sin(t3), cos(t1) *
+         sin(t2)*sin(t3)-sin(t1)*cos(t3), cos(t1)*cos(t2)]
+    ])
+    return rm
+
+
+def rotation_matrix_to_euler_angles(rm):
+    t1 = math.atan2(rm[1, 2], rm[2, 2])
+    c2 = math.sqrt(rm[0, 0]**2 + rm[0, 1]**2)
+    t2 = math.atan2(-rm[0, 2], c2)
+    s1, c1 = sin(t1), cos(t1)
+    t3 = math.atan2(s1*rm[2, 0]-c1*rm[1, 0], c1*rm[1, 1]-s1*rm[2, 1])
+    return rad2deg(t1), rad2deg(t2), rad2deg(t3)

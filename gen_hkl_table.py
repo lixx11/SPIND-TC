@@ -138,10 +138,10 @@ def master_run(jobs, output='table.h5'):
     for worker in workers:
         worker_file = 'table-tmp-%d.h5' % worker
         sub_table = h5py.File(worker_file, 'r')
-        hkl1_list.append(sub_table['hkl1'].value)
-        hkl2_list.append(sub_table['hkl2'].value)
-        len_angle_list.append(sub_table['len_angle'].value[:, :3])
-        len_list.append(sub_table['len_angle'].value[:, 3])
+        hkl1_list.append(sub_table['hkl1'][()])
+        hkl2_list.append(sub_table['hkl2'][()])
+        len_angle_list.append(sub_table['len_angle'][:, :3])
+        len_list.append(sub_table['len_angle'][:, 3])
         os.remove(worker_file)
 
     hkl1 = np.concatenate(hkl1_list)
