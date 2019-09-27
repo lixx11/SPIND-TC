@@ -1,2 +1,2 @@
-# SPIND-NG
-Next generation of Sparse Pattern INDexing method.
+# SPIND-TC
+Two-Color extension of Sparse Pattern INDexing method.
